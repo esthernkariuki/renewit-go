@@ -16,6 +16,8 @@ func RegisterRoutes(router *gin.Engine) {
 	router.GET("/", handlers.Home)
 	router.GET("/users", users.GetUsers)
 	router.POST("/users", users.CreateUser)
+	router.PATCH("/users/:id", users.UpdateUser)
+	router.DELETE("/users/:id", users.DeleteUser)
 	router.GET("/materials", materials.GetMaterials)
 	router.POST("/materials", materials.CreateMaterials)
 	router.PATCH("/materials/:id", materials.UpdateMaterial)
