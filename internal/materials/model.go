@@ -11,7 +11,7 @@ type Material struct {
 	Quantity  int        `json:"quantity" binding:"required,min=1"`
 	Condition string     `json:"condition" binding:"required"`
 	Image     string     `json:"image"`
-	TraderID  uint       `json:"trader_id" binding:"required"`
-	Trader    users.User `json:"trader" gorm:"foreignKey:TraderID"`
+	TraderID  uint       `json:"trader_id"`
+	Trader    users.User `json:"-" gorm:"foreignKey:TraderID"`
 	ListedAt  time.Time  `json:"listed_at"`
 }

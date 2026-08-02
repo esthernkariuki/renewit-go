@@ -16,6 +16,16 @@ func SaveMaterial(material *Material) error {
 	return result.Error
 
 }
+func GetMaterialByID(id string) (*Material, error) {
+	var material Material
+
+	result := database.DB.First(&material, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &material, nil
+}
 
 func UpdateMaterialRepository(id string, material *Material) error {
 

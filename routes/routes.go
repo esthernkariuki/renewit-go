@@ -33,8 +33,8 @@ func RegisterRoutes(router *gin.Engine) {
 	// Material routes
 	router.GET("/materials", materials.GetMaterials)
 	router.POST("/materials", auth.AuthMiddleware(), auth.RequireRole("Trader"), materials.CreateMaterials)
-	router.PATCH("/materials/:id", materials.UpdateMaterial)
-	router.DELETE("/materials/:id", materials.DeleteMaterial)
+	router.PATCH("/materials/:id", auth.AuthMiddleware(), materials.UpdateMaterial)
+	router.DELETE("/materials/:id", auth.AuthMiddleware(), materials.DeleteMaterial)
 
 	// Catalogue routes
 	router.GET("/catalogue", catalogue.GetCatalogues)
@@ -45,8 +45,8 @@ func RegisterRoutes(router *gin.Engine) {
 	// Upcycled products
 	router.GET("/upcycled-products", upcycledproducts.GetUpcycledProducts)
 	router.POST("/upcycled-products", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.CreateUpcycledProducts)
-	router.PATCH("/upcycled-products/:id", upcycledproducts.UpdateUpcycledProducts)
-	router.DELETE("/upcycled-products/:id", upcycledproducts.DeleteUpcycledProducts)
+	router.PATCH("/upcycled-products/:id", auth.RequireRole("Upcycler"), upcycledproducts.UpdateUpcycledProducts)
+	router.DELETE("/upcycled-products/:id", auth.RequireRole("Upcycler"), upcycledproducts.DeleteUpcycledProducts)
 
 	// Payments
 	router.GET("/payments", payment.GetPayment)

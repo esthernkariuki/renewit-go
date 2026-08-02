@@ -15,6 +15,15 @@ func SaveUpcycledProduct(upcycledproducts *Upcycledproduct) error {
 	result := database.DB.Save(&upcycledproducts)
 	return result.Error
 }
+func GetUpcycledProductByID(
+	id string,
+	product *Upcycledproduct,
+) error {
+
+	result := database.DB.First(product, id)
+
+	return result.Error
+}
 func UpdateUpcycledProductRepository(id string, upcycledproducts *Upcycledproduct) error {
 	var existing Upcycledproduct
 	result := database.DB.First(&existing, id)
