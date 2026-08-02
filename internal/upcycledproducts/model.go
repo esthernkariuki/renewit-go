@@ -12,6 +12,6 @@ type Upcycledproduct struct {
 	Type       string     `json:"type" binding:"required"`
 	Price      float64    `json:"price" binding:"required"`
 	UpdatedAt  time.Time  `json:"updated_at"`
-	UpcyclerID uint       `json:"upcycler_id" binding:"required"`
+	UpcyclerID uint       `json:"upcycler_id"`
 	Upcycler   users.User `json:"upcycler" gorm:"foreignKey:UpcyclerID"`
 }

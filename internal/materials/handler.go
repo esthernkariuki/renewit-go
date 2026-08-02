@@ -18,14 +18,24 @@ func CreateMaterials(c *gin.Context) {
 		return
 	}
 
-	err := CreateMaterialService(&material)
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.JSON(401, gin.H{
+			"error": "Unauthorized",
+		})
+		return
+	}
 
+	material.TraderID = uint(userID.(float64))
+
+	err := CreateMaterialService(&material)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"error": "Failed to create material",
 		})
 		return
 	}
+
 	c.JSON(201, material)
 }
 
@@ -42,11 +52,20 @@ func UpdateMaterial(c *gin.Context) {
 		return
 	}
 
-	err := UpdateMaterialService(id, &material)
+	userID, exists := c.Get("user_id")
+
+	if !exists {
+		c.JSON(401, gin.H{
+			"error": "Unauthorized",
+		})
+		return
+	}
+
+	err := UpdateMaterialService(id, uint(userID.(float64)), &material)
 
 	if err != nil {
-		c.JSON(404, gin.H{
-			"error": "Material not found",
+		c.JSON(403, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
@@ -57,18 +76,21 @@ func UpdateMaterial(c *gin.Context) {
 }
 
 func DeleteMaterial(c *gin.Context) {
+
 	id := c.Param("id")
 
-	err := DeleteMaterialService(id)
+	userID, _ := c.Get("user_id")
+
+	err := DeleteMaterialService(id, uint(userID.(float64)))
 
 	if err != nil {
-		c.JSON(404, gin.H{
-			"error": "Material not found",
+		c.JSON(403, gin.H{
+			"error": err.Error(),
 		})
 		return
 	}
+
 	c.JSON(200, gin.H{
 		"message": "Material deleted successfully",
 	})
-
 }
