@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"renewit-go/config"
 	"renewit-go/database"
 	"renewit-go/internal/catalogue"
@@ -11,9 +12,14 @@ import (
 	"renewit-go/routes"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	config.LoadEnv()
 	router := gin.Default()
 	database.ConnectDatabase()
