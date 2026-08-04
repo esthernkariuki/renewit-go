@@ -2,11 +2,33 @@ package materials
 
 import "github.com/gin-gonic/gin"
 
+// GetMaterials godoc
+//
+//	@Summary		Get all materials
+//	@Description	Retrieve all listed materials
+//	@Tags			Materials
+//	@Produce		json
+//	@Success		200	{array}	materials.Material
+//	@Router			/materials [get]
 func GetMaterials(c *gin.Context) {
 	materials := GetAllMaterials()
 	c.JSON(200, materials)
 }
 
+// CreateMaterials godoc
+//
+//	@Summary		Create material
+//	@Description	Create a new material (Trader only)
+//	@Tags			Materials
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		materials.Material	true	"Material data"
+//	@Success		201		{object}	materials.Material
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/materials [post]
 func CreateMaterials(c *gin.Context) {
 	var material Material
 
@@ -39,6 +61,21 @@ func CreateMaterials(c *gin.Context) {
 	c.JSON(201, material)
 }
 
+// UpdateMaterial godoc
+//
+//	@Summary		Update material
+//	@Description	Update your own material
+//	@Tags			Materials
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int					true	"Material ID"
+//	@Param			request	body		materials.Material	true	"Updated material"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		403		{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/materials/{id} [patch]
 func UpdateMaterial(c *gin.Context) {
 
 	id := c.Param("id")
@@ -75,6 +112,18 @@ func UpdateMaterial(c *gin.Context) {
 	})
 }
 
+// DeleteMaterial godoc
+//
+//	@Summary		Delete material
+//	@Description	Delete your own material
+//	@Tags			Materials
+//	@Produce		json
+//	@Param			id	path	int	true	"Material ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		401	{object}	map[string]string
+//	@Failure		403	{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/materials/{id} [delete]
 func DeleteMaterial(c *gin.Context) {
 
 	id := c.Param("id")

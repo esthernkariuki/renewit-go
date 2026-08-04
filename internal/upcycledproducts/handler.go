@@ -4,11 +4,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetUpcycledProducts godoc
+//
+//	@Summary		Get all upcycled products
+//	@Description	Retrieve all upcycled products
+//	@Tags			Upcycled Products
+//	@Produce		json
+//	@Success		200	{array}	upcycledproducts.Upcycledproduct
+//	@Router			/upcycled-products [get]
 func GetUpcycledProducts(c *gin.Context) {
 	upcycledProducts := GetAllUpcycledProducts()
 	c.JSON(200, upcycledProducts)
 }
 
+// CreateUpcycledProducts godoc
+//
+//	@Summary		Create upcycled product
+//	@Description	Create a new upcycled product (Upcycler only)
+//	@Tags			Upcycled Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		upcycledproducts.Upcycledproduct	true	"Upcycled product data"
+//	@Success		201		{object}	upcycledproducts.Upcycledproduct
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/upcycled-products [post]
 func CreateUpcycledProducts(c *gin.Context) {
 	var upcycledProduct Upcycledproduct
 
@@ -41,6 +63,21 @@ func CreateUpcycledProducts(c *gin.Context) {
 
 }
 
+// UpdateUpcycledProducts godoc
+//
+//	@Summary		Update upcycled product
+//	@Description	Update your own upcycled product
+//	@Tags			Upcycled Products
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int								true	"Product ID"
+//	@Param			request	body		upcycledproducts.Upcycledproduct	true	"Updated product"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	map[string]string
+//	@Failure		401		{object}	map[string]string
+//	@Failure		403		{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/upcycled-products/{id} [patch]
 func UpdateUpcycledProducts(c *gin.Context) {
 	id := c.Param("id")
 
@@ -76,6 +113,18 @@ func UpdateUpcycledProducts(c *gin.Context) {
 	})
 }
 
+// DeleteUpcycledProducts godoc
+//
+//	@Summary		Delete upcycled product
+//	@Description	Delete your own upcycled product
+//	@Tags			Upcycled Products
+//	@Produce		json
+//	@Param			id	path	int	true	"Product ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		401	{object}	map[string]string
+//	@Failure		403	{object}	map[string]string
+//	@Security		BearerAuth
+//	@Router			/upcycled-products/{id} [delete]
 func DeleteUpcycledProducts(c *gin.Context) {
 
 	id := c.Param("id")

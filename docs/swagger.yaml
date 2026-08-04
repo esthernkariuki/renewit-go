@@ -1,0 +1,868 @@
+basePath: /
+definitions:
+  auth.LoginRequest:
+    properties:
+      Password:
+        type: string
+      Phone:
+        type: string
+    required:
+    - Password
+    - Phone
+    type: object
+  auth.RegisterRequest:
+    properties:
+      name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+    required:
+    - name
+    - password
+    - phone
+    - role
+    type: object
+  catalogue.Catalogue:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      last_update_date:
+        type: string
+      material_description:
+        type: string
+      material_type:
+        type: string
+      price_per_kg:
+        type: number
+    required:
+    - material_description
+    - material_type
+    - price_per_kg
+    type: object
+  daraja.STKPushPayload:
+    properties:
+      account_reference:
+        type: string
+      amount:
+        type: integer
+      phone_number:
+        type: string
+      transaction_desc:
+        type: string
+    required:
+    - account_reference
+    - amount
+    - phone_number
+    - transaction_desc
+    type: object
+  materials.Material:
+    properties:
+      condition:
+        type: string
+      id:
+        type: integer
+      image:
+        type: string
+      listed_at:
+        type: string
+      quantity:
+        minimum: 1
+        type: integer
+      trader_id:
+        type: integer
+      type:
+        type: string
+    required:
+    - condition
+    - quantity
+    - type
+    type: object
+  payment.Payment:
+    properties:
+      account_reference:
+        type: string
+      amount:
+        type: number
+      amount_from_callback:
+        type: number
+      condition:
+        type: string
+      id:
+        type: integer
+      listed_at:
+        type: string
+      mpesa_checkout_id:
+        type: string
+      mpesa_merchant_id:
+        type: string
+      mpesa_receipt_number:
+        type: string
+      payment_status:
+        type: string
+      phone_number:
+        type: string
+      phone_number_from_callback:
+        type: string
+      price:
+        type: number
+      quantity:
+        minimum: 1
+        type: integer
+      result_code:
+        type: string
+      result_description:
+        type: string
+      trader:
+        $ref: '#/definitions/users.User'
+      trader_id:
+        type: integer
+      transaction_date:
+        type: string
+      transaction_desc:
+        type: string
+      type:
+        type: string
+      upcycler:
+        $ref: '#/definitions/users.User'
+      upcycler_id:
+        type: integer
+    required:
+    - condition
+    - price
+    - quantity
+    - trader_id
+    - type
+    - upcycler_id
+    type: object
+  upcycledproducts.Upcycledproduct:
+    properties:
+      id:
+        type: integer
+      image:
+        type: string
+      price:
+        type: number
+      quantity:
+        minimum: 1
+        type: integer
+      type:
+        type: string
+      upcycler:
+        $ref: '#/definitions/users.User'
+      upcycler_id:
+        type: integer
+      updated_at:
+        type: string
+    required:
+    - image
+    - price
+    - quantity
+    - type
+    type: object
+  users.User:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      role:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: esthernnyamburaa@gmail.com
+    name: Esther Nyambura Kariuki
+  description: REST API for RenewIt, connecting traders, upcyclers, and buyers.
+  license:
+    name: MIT
+  termsOfService: http://swagger.io/terms/
+  title: RenewIt API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate a user and return a JWT token
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Login user
+      tags:
+      - Authentication
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a Trader or Upcycler account
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Register a new user
+      tags:
+      - Authentication
+  /catalogue:
+    get:
+      description: Retrieve all catalogue entries
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/catalogue.Catalogue'
+            type: array
+      summary: Get all catalogues
+      tags:
+      - Catalogue
+    post:
+      consumes:
+      - application/json
+      description: Create a new catalogue entry
+      parameters:
+      - description: Catalogue data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/catalogue.Catalogue'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/catalogue.Catalogue'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create catalogue
+      tags:
+      - Catalogue
+  /catalogue/{id}:
+    delete:
+      description: Delete a catalogue entry
+      parameters:
+      - description: Catalogue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete catalogue
+      tags:
+      - Catalogue
+    patch:
+      consumes:
+      - application/json
+      description: Update a catalogue entry
+      parameters:
+      - description: Catalogue ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated catalogue
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/catalogue.Catalogue'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update catalogue
+      tags:
+      - Catalogue
+  /daraja/callback:
+    post:
+      consumes:
+      - application/json
+      description: Receives payment callback notifications from Safaricom Daraja API
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: M-Pesa Callback
+      tags:
+      - Daraja
+  /daraja/stkpush:
+    post:
+      consumes:
+      - application/json
+      description: Send an STK Push request to the customer's phone using Safaricom
+        Daraja API
+      parameters:
+      - description: STK Push request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/daraja.STKPushPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Initiate M-Pesa STK Push
+      tags:
+      - Daraja
+  /materials:
+    get:
+      description: Retrieve all listed materials
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/materials.Material'
+            type: array
+      summary: Get all materials
+      tags:
+      - Materials
+    post:
+      consumes:
+      - application/json
+      description: Create a new material (Trader only)
+      parameters:
+      - description: Material data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/materials.Material'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/materials.Material'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create material
+      tags:
+      - Materials
+  /materials/{id}:
+    delete:
+      description: Delete your own material
+      parameters:
+      - description: Material ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete material
+      tags:
+      - Materials
+    patch:
+      consumes:
+      - application/json
+      description: Update your own material
+      parameters:
+      - description: Material ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated material
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/materials.Material'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update material
+      tags:
+      - Materials
+  /payments:
+    get:
+      description: Retrieve all payment records
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/payment.Payment'
+            type: array
+      summary: Get all payments
+      tags:
+      - Payments
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment record
+      parameters:
+      - description: Payment details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/payment.Payment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/payment.Payment'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create payment
+      tags:
+      - Payments
+  /upcycled-products:
+    get:
+      description: Retrieve all upcycled products
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/upcycledproducts.Upcycledproduct'
+            type: array
+      summary: Get all upcycled products
+      tags:
+      - Upcycled Products
+    post:
+      consumes:
+      - application/json
+      description: Create a new upcycled product (Upcycler only)
+      parameters:
+      - description: Upcycled product data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/upcycledproducts.Upcycledproduct'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/upcycledproducts.Upcycledproduct'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create upcycled product
+      tags:
+      - Upcycled Products
+  /upcycled-products/{id}:
+    delete:
+      description: Delete your own upcycled product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete upcycled product
+      tags:
+      - Upcycled Products
+    patch:
+      consumes:
+      - application/json
+      description: Update your own upcycled product
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated product
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/upcycledproducts.Upcycledproduct'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update upcycled product
+      tags:
+      - Upcycled Products
+  /users:
+    get:
+      description: Retrieve all registered users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/users.User'
+            type: array
+      summary: Get all users
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Create a new user
+      parameters:
+      - description: User data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/users.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a user
+      tags:
+      - Users
+  /users/{id}:
+    delete:
+      description: Delete a user by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete user
+      tags:
+      - Users
+    patch:
+      consumes:
+      - application/json
+      description: Update an existing user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update user
+      tags:
+      - Users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

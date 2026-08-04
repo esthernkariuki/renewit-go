@@ -4,10 +4,31 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GetCatalogues godoc
+//
+//	@Summary		Get all catalogues
+//	@Description	Retrieve all catalogue entries
+//	@Tags			Catalogue
+//	@Produce		json
+//	@Success		200	{array}	catalogue.Catalogue
+//	@Router			/catalogue [get]
 func GetCatalogues(c *gin.Context) {
 	catalogue := GetAllCatalogues()
 	c.JSON(200, catalogue)
 }
+
+// CreateCatalogue godoc
+//
+//	@Summary		Create catalogue
+//	@Description	Create a new catalogue entry
+//	@Tags			Catalogue
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		catalogue.Catalogue	true	"Catalogue data"
+//	@Success		201		{object}	catalogue.Catalogue
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/catalogue [post]
 func CreateCatalogue(c *gin.Context) {
 	var catalogue Catalogue
 
@@ -30,6 +51,19 @@ func CreateCatalogue(c *gin.Context) {
 	c.JSON(201, catalogue)
 }
 
+// UpdateCatalogue godoc
+//
+//	@Summary		Update catalogue
+//	@Description	Update a catalogue entry
+//	@Tags			Catalogue
+//	@Accept			json
+//	@Produce		json
+//	@Param			id		path		int					true	"Catalogue ID"
+//	@Param			request	body		catalogue.Catalogue	true	"Updated catalogue"
+//	@Success		200		{object}	map[string]string
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/catalogue/{id} [patch]
 func UpdateCatalogue(c *gin.Context) {
 	id := c.Param("id")
 	var catalogue Catalogue
@@ -55,6 +89,16 @@ func UpdateCatalogue(c *gin.Context) {
 
 }
 
+// DeleteCatalogue godoc
+//
+//	@Summary		Delete catalogue
+//	@Description	Delete a catalogue entry
+//	@Tags			Catalogue
+//	@Produce		json
+//	@Param			id	path	int	true	"Catalogue ID"
+//	@Success		200	{object}	map[string]string
+//	@Failure		400	{object}	map[string]string
+//	@Router			/catalogue/{id} [delete]
 func DeleteCatalogue(c *gin.Context) {
 	id := c.Param("id")
 
@@ -62,11 +106,11 @@ func DeleteCatalogue(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(400, gin.H{
-			"eror": "catalogue not found",
+			"eror": "Catalogue not found",
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"error": "Catalogue deleted successfully",
+		"message": "Catalogue deleted successfully",
 	})
 }

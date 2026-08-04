@@ -6,6 +6,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// STKPush godoc
+//
+//	@Summary		Initiate M-Pesa STK Push
+//	@Description	Send an STK Push request to the customer's phone using Safaricom Daraja API
+//	@Tags			Daraja
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		daraja.STKPushPayload	true	"STK Push request"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		400		{object}	map[string]string
+//	@Failure		500		{object}	map[string]string
+//	@Router			/daraja/stkpush [post]
 func STKPush(c *gin.Context) {
 
 	var payload STKPushPayload
