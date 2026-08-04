@@ -11,14 +11,19 @@ import (
 	"renewit-go/internal/users"
 
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func RegisterRoutes(router *gin.Engine) {
 
 	router.GET("/", handlers.Home)
+	// swagger documentation
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Auth routes
 	authRoutes := router.Group("/auth")
+
 	{
 		authRoutes.POST("/register", auth.RegisterHandler)
 		authRoutes.POST("/login", auth.LoginHandler)
@@ -45,8 +50,8 @@ func RegisterRoutes(router *gin.Engine) {
 	// Upcycled products
 	router.GET("/upcycled-products", upcycledproducts.GetUpcycledProducts)
 	router.POST("/upcycled-products", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.CreateUpcycledProducts)
-	router.PATCH("/upcycled-products/:id", auth.RequireRole("Upcycler"), upcycledproducts.UpdateUpcycledProducts)
-	router.DELETE("/upcycled-products/:id", auth.RequireRole("Upcycler"), upcycledproducts.DeleteUpcycledProducts)
+	router.PATCH("/upcycled-products/:id", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.UpdateUpcycledProducts)
+	router.DELETE("/upcycled-products/:id", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.DeleteUpcycledProducts)
 
 	// Payments
 	router.GET("/payments", payment.GetPayment)
@@ -55,4 +60,5 @@ func RegisterRoutes(router *gin.Engine) {
 	// Daraja
 	router.POST("/daraja/stkpush", daraja.STKPush)
 	router.POST("/daraja/callback", payment.Callback)
+
 }

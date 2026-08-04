@@ -6,6 +6,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// RegisterHandler godoc
+//
+//	@Summary		Register a new user
+//	@Description	Register a Trader or Upcycler account
+//	@Tags			Authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		RegisterRequest	true	"Registration details"
+//	@Success		201		{object}	map[string]interface{}
+//	@Failure		400		{object}	map[string]string
+//	@Router			/auth/register [post]
 func RegisterHandler(c *gin.Context) {
 	var request RegisterRequest
 
@@ -31,6 +42,18 @@ func RegisterHandler(c *gin.Context) {
 		"message": "User registered successfully",
 	})
 }
+
+// LoginHandler godoc
+//
+//	@Summary		Login user
+//	@Description	Authenticate a user and return a JWT token
+//	@Tags			Authentication
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		LoginRequest	true	"Login credentials"
+//	@Success		200		{object}	map[string]interface{}
+//	@Failure		401		{object}	map[string]string
+//	@Router			/auth/login [post]
 func LoginHandler(c *gin.Context) {
 	var request LoginRequest
 

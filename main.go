@@ -1,3 +1,19 @@
+// @title RenewIt API
+// @version 1.0
+// @description REST API for RenewIt, connecting traders, upcyclers, and buyers.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name Esther Nyambura Kariuki
+// @contact.email esthernnyamburaa@gmail.com
+
+// @license.name MIT
+
+// @host localhost:8080
+// @BasePath /
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
 package main
 
 import (
@@ -10,6 +26,8 @@ import (
 	"renewit-go/internal/upcycledproducts"
 	"renewit-go/internal/users"
 	"renewit-go/routes"
+
+	_ "renewit-go/docs"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"

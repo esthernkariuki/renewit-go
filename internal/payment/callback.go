@@ -8,6 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Callback godoc
+//
+//	@Summary		M-Pesa Callback
+//	@Description	Receives payment callback notifications from Safaricom Daraja API
+//	@Tags			Daraja
+//	@Accept			json
+//	@Produce		json
+//	@Success		200	{object}	map[string]string
+//	@Router			/daraja/callback [post]
 func Callback(c *gin.Context) {
 
 	var callback CallbackRequest
