@@ -28,9 +28,12 @@ import (
 	"renewit-go/internal/upcycledproducts"
 	"renewit-go/internal/users"
 	"renewit-go/routes"
+	"strings"
+	"time"
 
 	_ "renewit-go/docs"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -40,7 +43,19 @@ func main() {
 		log.Println(".env file not found, using environment variables")
 	}
 	config.LoadEnv()
+
+	allowedOrigins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
+
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     allowedOrigins,
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
 	database.ConnectDatabase()
 	database.DB.AutoMigrate(
 		&users.User{},
