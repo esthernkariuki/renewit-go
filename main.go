@@ -17,7 +17,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"renewit-go/config"
 	"renewit-go/database"
 	"renewit-go/internal/catalogue"
@@ -49,6 +51,11 @@ func main() {
 		&payment.Payment{},
 	)
 	routes.RegisterRoutes(router)
-	router.Run(":8080")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	router.Run(fmt.Sprintf(":%s", port))
 
 }
