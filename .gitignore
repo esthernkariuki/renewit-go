@@ -18,4 +18,6 @@
 *.sqlite
 
 # Build files
-/bin/
+/bin/uploads/
+uploads/
+uploads/

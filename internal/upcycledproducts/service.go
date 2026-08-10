@@ -6,28 +6,40 @@ func GetAllUpcycledProducts() []Upcycledproduct {
 	return FetchUpcyclerProducts()
 }
 
-func CreateUpcycledProductsService(upcycledproduct *Upcycledproduct) error {
-	return SaveUpcycledProduct(upcycledproduct)
+func CreateUpcycledProductsService(
+	upcycledProduct *Upcycledproduct,
+) error {
+
+	return SaveUpcycledProduct(upcycledProduct)
 }
+
 func UpdateUpcycledProductsService(
 	id string,
 	userID uint,
-	upcycledproduct *Upcycledproduct,
+	upcycledProduct *Upcycledproduct,
 ) error {
 
 	var existing Upcycledproduct
 
-	err := GetUpcycledProductByID(id, &existing)
+	err := GetUpcycledProductByID(
+		id,
+		&existing,
+	)
 
 	if err != nil {
 		return err
 	}
 
 	if existing.UpcyclerID != userID {
-		return errors.New("you do not own this product")
+		return errors.New(
+			"you do not own this product",
+		)
 	}
 
-	return UpdateUpcycledProductRepository(id, upcycledproduct)
+	return UpdateUpcycledProductRepository(
+		id,
+		upcycledProduct,
+	)
 }
 
 func DeleteUpcycledProductsService(
@@ -37,14 +49,19 @@ func DeleteUpcycledProductsService(
 
 	var product Upcycledproduct
 
-	err := GetUpcycledProductByID(id, &product)
+	err := GetUpcycledProductByID(
+		id,
+		&product,
+	)
 
 	if err != nil {
 		return err
 	}
 
 	if product.UpcyclerID != userID {
-		return errors.New("you do not own this product")
+		return errors.New(
+			"you do not own this product",
+		)
 	}
 
 	return DeleteUpcycledProductsRepository(id)

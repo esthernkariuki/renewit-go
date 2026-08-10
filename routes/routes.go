@@ -18,47 +18,164 @@ import (
 func RegisterRoutes(router *gin.Engine) {
 
 	router.GET("/", handlers.Home)
-	// swagger documentation
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	router.Static("/uploads", "./uploads")
 
-	// Auth routes
+	// Swagger
+	router.GET(
+		"/swagger/*any",
+		ginSwagger.WrapHandler(swaggerFiles.Handler),
+	)
+
+	// =========================
+	// AUTH
+	// =========================
+
 	authRoutes := router.Group("/auth")
 
 	{
-		authRoutes.POST("/register", auth.RegisterHandler)
-		authRoutes.POST("/login", auth.LoginHandler)
+		authRoutes.POST(
+			"/register",
+			auth.RegisterHandler,
+		)
+
+		authRoutes.POST(
+			"/login",
+			auth.LoginHandler,
+		)
 	}
 
-	// User routes
-	router.GET("/users", users.GetUsers)
-	router.POST("/users", users.CreateUser)
-	router.PATCH("/users/:id", users.UpdateUser)
-	router.DELETE("/users/:id", users.DeleteUser)
+	// =========================
+	// USERS
+	// =========================
 
-	// Material routes
-	router.GET("/materials", materials.GetMaterials)
-	router.POST("/materials", auth.AuthMiddleware(), auth.RequireRole("Trader"), materials.CreateMaterials)
-	router.PATCH("/materials/:id", auth.AuthMiddleware(), materials.UpdateMaterial)
-	router.DELETE("/materials/:id", auth.AuthMiddleware(), materials.DeleteMaterial)
+	router.GET(
+		"/users",
+		users.GetUsers,
+	)
 
-	// Catalogue routes
-	router.GET("/catalogue", catalogue.GetCatalogues)
-	router.POST("/catalogue", catalogue.CreateCatalogue)
-	router.PATCH("/catalogue/:id", catalogue.UpdateCatalogue)
-	router.DELETE("/catalogue/:id", catalogue.DeleteCatalogue)
+	router.POST(
+		"/users",
+		users.CreateUser,
+	)
+
+	router.PATCH(
+		"/users/:id",
+		users.UpdateUser,
+	)
+
+	router.DELETE(
+		"/users/:id",
+		users.DeleteUser,
+	)
+
+	// =========================
+	// MATERIALS
+	// =========================
+
+	router.GET(
+		"/materials",
+		materials.GetMaterials,
+	)
+
+	router.POST(
+		"/materials",
+		auth.AuthMiddleware(),
+		auth.RequireRole("trader"),
+		materials.CreateMaterials,
+	)
+
+	router.PATCH(
+		"/materials/:id",
+		auth.AuthMiddleware(),
+		materials.UpdateMaterial,
+	)
+
+	router.DELETE(
+		"/materials/:id",
+		auth.AuthMiddleware(),
+		materials.DeleteMaterial,
+	)
+
+	// =========================
+	// CATALOGUE
+	// =========================
+
+	router.GET(
+		"/catalogue",
+		catalogue.GetCatalogues,
+	)
+
+	router.POST(
+		"/catalogue",
+		catalogue.CreateCatalogue,
+	)
+
+	router.PATCH(
+		"/catalogue/:id",
+		catalogue.UpdateCatalogue,
+	)
+
+	router.DELETE(
+		"/catalogue/:id",
+		catalogue.DeleteCatalogue,
+	)
+
+	// =========================
+	// UPCYCLED PRODUCTS
+	// =========================
 
 	// Upcycled products
-	router.GET("/upcycled-products", upcycledproducts.GetUpcycledProducts)
-	router.POST("/upcycled-products", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.CreateUpcycledProducts)
-	router.PATCH("/upcycled-products/:id", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.UpdateUpcycledProducts)
-	router.DELETE("/upcycled-products/:id", auth.AuthMiddleware(), auth.RequireRole("Upcycler"), upcycledproducts.DeleteUpcycledProducts)
+	router.GET(
+		"/upcycled-products",
+		upcycledproducts.GetUpcycledProducts,
+	)
 
-	// Payments
-	router.GET("/payments", payment.GetPayment)
-	router.POST("/payments", payment.CreatePayment)
+	router.POST(
+		"/upcycled-products",
+		auth.AuthMiddleware(),
+		auth.RequireRole("upcycler"),
+		upcycledproducts.CreateUpcycledProducts,
+	)
 
-	// Daraja
-	router.POST("/daraja/stkpush", daraja.STKPush)
-	router.POST("/daraja/callback", payment.Callback)
+	router.PATCH(
+		"/upcycled-products/:id",
+		auth.AuthMiddleware(),
+		auth.RequireRole("upcycler"),
+		upcycledproducts.UpdateUpcycledProducts,
+	)
 
+	router.DELETE(
+		"/upcycled-products/:id",
+		auth.AuthMiddleware(),
+		auth.RequireRole("upcycler"),
+		upcycledproducts.DeleteUpcycledProducts,
+	)
+	// =========================
+	// PAYMENTS
+	// =========================
+
+	router.GET(
+		"/payments",
+		payment.GetPayment,
+	)
+
+	router.POST(
+		"/payments",
+		auth.AuthMiddleware(),
+		payment.CreatePayment,
+	)
+
+	// =========================
+	// DARAJA
+	// =========================
+
+	router.POST(
+		"/daraja/stkpush",
+		daraja.STKPush,
+	)
+
+	router.POST(
+		"/daraja/callback",
+		payment.Callback,
+	)
 }

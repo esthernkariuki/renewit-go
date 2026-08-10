@@ -10,6 +10,7 @@
 
 // @host localhost:8080
 // @BasePath /
+
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
@@ -20,6 +21,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
+
 	"renewit-go/config"
 	"renewit-go/database"
 	"renewit-go/internal/catalogue"
@@ -28,8 +32,6 @@ import (
 	"renewit-go/internal/upcycledproducts"
 	"renewit-go/internal/users"
 	"renewit-go/routes"
-	"strings"
-	"time"
 
 	_ "renewit-go/docs"
 
@@ -39,37 +41,108 @@ import (
 )
 
 func main() {
+
+	// Load .env locally.
 	if err := godotenv.Load(); err != nil {
-		log.Println(".env file not found, using environment variables")
+		log.Println(
+			".env file not found, using environment variables",
+		)
 	}
+
 	config.LoadEnv()
 
-	allowedOrigins := strings.Split(os.Getenv("ALLOWED_ORIGINS"), ",")
+	// =========================
+	// CORS
+	// =========================
+
+	allowedOrigins := strings.Split(
+		os.Getenv("ALLOWED_ORIGINS"),
+		",",
+	)
+
+	for i := range allowedOrigins {
+		allowedOrigins[i] =
+			strings.TrimSpace(allowedOrigins[i])
+	}
 
 	router := gin.Default()
 
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     allowedOrigins,
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		MaxAge:           12 * time.Hour,
-	}))
+	router.Use(
+		cors.New(cors.Config{
+
+			AllowOrigins: allowedOrigins,
+
+			AllowMethods: []string{
+				"GET",
+				"POST",
+				"PUT",
+				"PATCH",
+				"DELETE",
+				"OPTIONS",
+			},
+
+			AllowHeaders: []string{
+				"Origin",
+				"Content-Type",
+				"Accept",
+				"Authorization",
+			},
+
+			ExposeHeaders: []string{
+				"Content-Length",
+			},
+
+			AllowCredentials: true,
+
+			MaxAge: 12 * time.Hour,
+		}),
+	)
+
+	// =========================
+	// DATABASE
+	// =========================
+
 	database.ConnectDatabase()
-	database.DB.AutoMigrate(
+
+	err := database.DB.AutoMigrate(
 		&users.User{},
 		&materials.Material{},
 		&catalogue.Catalogue{},
 		&upcycledproducts.Upcycledproduct{},
 		&payment.Payment{},
 	)
+
+	if err != nil {
+		log.Fatal(
+			"Database migration failed:",
+			err,
+		)
+	}
+
+	// =========================
+	// ROUTES
+	// =========================
+
 	routes.RegisterRoutes(router)
+
+	// =========================
+	// SERVER
+	// =========================
+
 	port := os.Getenv("PORT")
+
 	if port == "" {
 		port = "8080"
 	}
 
-	router.Run(fmt.Sprintf(":%s", port))
+	log.Println(
+		"RenewIt API running on port",
+		port,
+	)
 
+	if err := router.Run(
+		fmt.Sprintf(":%s", port),
+	); err != nil {
+		log.Fatal(err)
+	}
 }

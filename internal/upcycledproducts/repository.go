@@ -5,54 +5,70 @@ import (
 )
 
 func FetchUpcyclerProducts() []Upcycledproduct {
-	var upcycledproduct []Upcycledproduct
-	database.DB.Preload("Upcycler").Find(&upcycledproduct)
+	var upcycledProducts []Upcycledproduct
 
-	return upcycledproduct
+	database.DB.
+		Preload("Upcycler").
+		Find(&upcycledProducts)
+
+	return upcycledProducts
 }
 
-func SaveUpcycledProduct(upcycledproducts *Upcycledproduct) error {
-	result := database.DB.Save(&upcycledproducts)
+func SaveUpcycledProduct(product *Upcycledproduct) error {
+	result := database.DB.Create(product)
 	return result.Error
 }
+
 func GetUpcycledProductByID(
 	id string,
 	product *Upcycledproduct,
 ) error {
-
 	result := database.DB.First(product, id)
-
 	return result.Error
 }
-func UpdateUpcycledProductRepository(id string, upcycledproducts *Upcycledproduct) error {
+
+func UpdateUpcycledProductRepository(
+	id string,
+	product *Upcycledproduct,
+) error {
+
 	var existing Upcycledproduct
+
 	result := database.DB.First(&existing, id)
 
 	if result.Error != nil {
 		return result.Error
 	}
 
-	existing.Image = upcycledproducts.Image
-	existing.Quantity = upcycledproducts.Quantity
-	existing.Type = upcycledproducts.Type
-	existing.Price = upcycledproducts.Price
+	existing.UpcycledClothes = product.UpcycledClothes
+	existing.Description = product.Description
+	existing.Image = product.Image
+	existing.Quantity = product.Quantity
+	existing.Type = product.Type
+	existing.Material = product.Material
+	existing.Size = product.Size
+	existing.Color = product.Color
+	existing.Condition = product.Condition
+	existing.Location = product.Location
+	existing.Price = product.Price
+	existing.Status = product.Status
 
-	result = database.DB.Save(existing)
+	result = database.DB.Save(&existing)
 
 	return result.Error
 }
 
 func DeleteUpcycledProductsRepository(id string) error {
 
-	var upcycledProduct Upcycledproduct
+	var product Upcycledproduct
 
-	result := database.DB.First(&upcycledProduct, id)
+	result := database.DB.First(&product, id)
 
 	if result.Error != nil {
 		return result.Error
 	}
 
-	result = database.DB.Delete(upcycledProduct)
-	return result.Error
+	result = database.DB.Delete(&product)
 
+	return result.Error
 }

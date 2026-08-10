@@ -11,6 +11,10 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		// =========================
+		// GET AUTHORIZATION HEADER
+		// =========================
+
 		authHeader := c.GetHeader("Authorization")
 
 		if authHeader == "" {
@@ -21,7 +25,11 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		parts := strings.Split(authHeader, " ")
+		// =========================
+		// CHECK BEARER TOKEN
+		// =========================
+
+		parts := strings.Fields(authHeader)
 
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -33,9 +41,22 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return jwtSecret, nil
-		})
+		// =========================
+		// PARSE JWT
+		// =========================
+
+		token, err := jwt.Parse(
+			tokenString,
+			func(token *jwt.Token) (interface{}, error) {
+
+				// Make sure the token uses HMAC
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, jwt.ErrTokenSignatureInvalid
+				}
+
+				return jwtSecret, nil
+			},
+		)
 
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -45,7 +66,12 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		// =========================
+		// GET CLAIMS
+		// =========================
+
 		claims, ok := token.Claims.(jwt.MapClaims)
+
 		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"error": "Invalid token claims",
@@ -54,10 +80,49 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		c.Set("user_id", claims["user_id"])
-		c.Set("phone", claims["phone"])
-		c.Set("role", claims["role"])
+		// =========================
+		// GET USER ID
+		// =========================
 
+		userID, ok := claims["user_id"].(float64)
+
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Invalid user ID in token",
+			})
+			c.Abort()
+			return
+		}
+
+		// =========================
+		// GET ROLE
+		// =========================
+
+		role, ok := claims["role"].(string)
+
+		if !ok {
+			c.JSON(http.StatusUnauthorized, gin.H{
+				"error": "Invalid role in token",
+			})
+			c.Abort()
+			return
+		}
+
+		// =========================
+		// GET PHONE
+		// =========================
+
+		phone, _ := claims["phone"].(string)
+
+		// =========================
+		// STORE USER INFORMATION
+		// =========================
+
+		c.Set("user_id", userID)
+		c.Set("role", role)
+		c.Set("phone", phone)
+
+		// Continue request
 		c.Next()
 	}
 }

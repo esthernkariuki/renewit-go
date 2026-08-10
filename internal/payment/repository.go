@@ -3,17 +3,22 @@ package payment
 import "renewit-go/database"
 
 func FetchPayment() []Payment {
-	var payment []Payment
-	database.DB.Preload("Trader").Preload("Upcycler").Find(&payment)
-	return payment
+	var payments []Payment
 
+	database.DB.
+		Preload("Material").
+		Preload("Trader").
+		Preload("Upcycler").
+		Find(&payments)
+
+	return payments
 }
 
 func SavePayment(payment *Payment) error {
 	result := database.DB.Create(payment)
 	return result.Error
-
 }
+
 func UpdatePayment(payment *Payment) error {
 	return database.DB.Save(payment).Error
 }

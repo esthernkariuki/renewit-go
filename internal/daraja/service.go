@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"renewit-go/config"
 	"time"
@@ -141,16 +142,37 @@ func (d *DarajaService) STKPush(
 
 	defer resp.Body.Close()
 
-	var response STKPushResponse
-
-	err = json.NewDecoder(resp.Body).Decode(&response)
-	fmt.Println("STK Response:", response)
-	fmt.Println("HTTP Status:", resp.Status)
+	body, err := io.ReadAll(resp.Body)
 
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"failed to read Daraja response: %v",
+			err,
+		)
+	}
+
+	fmt.Println("=================================")
+	fmt.Println("DARAJA STK RESPONSE")
+	fmt.Println("HTTP Status:", resp.Status)
+	fmt.Println("Response Body:", string(body))
+	fmt.Println("=================================")
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		return nil, fmt.Errorf(
+			"Daraja returned HTTP %d: %s",
+			resp.StatusCode,
+			string(body),
+		)
+	}
+
+	var response STKPushResponse
+
+	if err := json.Unmarshal(body, &response); err != nil {
+		return nil, fmt.Errorf(
+			"failed to decode Daraja response: %v",
+			err,
+		)
 	}
 
 	return &response, nil
-
 }
